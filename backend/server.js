@@ -6,7 +6,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // IMPORTANT: You must set WALLETCONNECT_PROJECT_ID in your Railway environment variables
-const projectId = process.env.WALLETCONNECT_PROJECT_ID;
+const projectId = "0f1f7e3f5b3f1b2ffe4a8aada3702f6b";
 
 if (!projectId) {
     throw new Error("You must provide a WALLETCONNECT_PROJECT_ID env variable");
