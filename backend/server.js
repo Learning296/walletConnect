@@ -3,28 +3,30 @@ const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// CORS configuration
-app.use(cors({
-    origin: '*', // During development. Change this to your frontend URL in production
-    methods: ['GET', 'POST'],
-    credentials: true
-}));
+// This is your DApp's specific, pre-generated WalletConnect URL
+const MY_WALLET_CONNECT_URL = "wc:427d48481a039c0d9932e850de0680cb76363e7d0539bbbfb5b808c64c31b35@2?relay-protocol=irn&symKey=2bb7ec84df0df2de79c8d0635bd1977075cdef6eacc5d5fd67bde373faf5d8683&expiryTimestamp=1746102035";
+
+// Allow all origins for simplicity. 
+// In production, you should restrict this to your Vercel URL.
+app.use(cors()); 
 
 app.use(express.json());
 
-app.get('/get-wc', (req, res) => {
+// API endpoint that the frontend will call
+app.get('/get-wc-url', (req, res) => {
     const { address } = req.query;
     
-    if (!address || !address.startsWith("0x") || address.length !== 42) {
-        return res.status(400).json({ error: "Invalid Ethereum address" });
+    // Validate the address received from the frontend
+    if (!address || !address.match(/^0x[a-fA-F0-9]{40}$/)) {
+        return res.status(400).json({ error: "A valid Ethereum address is required in the query." });
     }
 
-    // Using Uniswap's WalletConnect URL format
-    const wcUrl = "wc:3c1fc06c-581c-4f0c-9c96-079f3c0e0000@2?relay-protocol=irn&symKey=0f1f7e3f5b3f1b2ffe4a8aada3702f6b";
-    
-    res.json({ wcUrl });
+    // If the address is valid, return the predefined WalletConnect URL.
+    // The address itself is not used to generate the URL, only to validate the request.
+    console.log(`Received valid request for address: ${address}. Sending WC URL.`);
+    res.json({ wcUrl: MY_WALLET_CONNECT_URL });
 });
 
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`API server running on port ${PORT}`);
 });
