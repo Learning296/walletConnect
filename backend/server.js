@@ -10,19 +10,43 @@ app.use(cors({
     credentials: true
 }));
 
-// Predefined WalletConnect URL (replace with your actual URL in production)
-const WC_URL = "wc:e597203d8a2606ea1d4becb697b9108834b4d215309060894b31e25f95f569b0@2?relay-protocol=irn&symKey=b4afd88f2f713a5fc4b66fb2239626d2b3c160dc5f56af70702974548579305f&expiryTimestamp=1746277106";
-
 app.use(express.json());
 
-app.get('/get-wc', (req, res) => {
+// WalletConnect v2 configuration
+const projectId = "0f1f7e3f5b3f1b2ffe4a8aada3702f6b";
+const metadata = {
+    name: 'Funding DApp',
+    description: 'Funding Contract DApp on Sepolia',
+    url: 'https://wallet-connect-app-iota.vercel.app',
+    icons: ['https://avatars.githubusercontent.com/u/37784886']
+};
+
+const CONTRACT_ADDRESS = "0x7e088527412243A0806369904EeD66DDc4f0a94B";
+
+app.get('/get-wc', async (req, res) => {
     const { address } = req.query;
-    console.log("Request received for address:", address); // Debug log
+    
     if (!address || !address.startsWith("0x") || address.length !== 42) {
         return res.status(400).json({ error: "Invalid Ethereum address" });
     }
-    res.json({ wcUrl: WC_URL });
+
+    try {
+        // Create WalletConnect v2 connection URL with proper parameters
+        const symKey = generateSymKey();
+        const wcUrl = `wc:${projectId}@2?relay-protocol=irn&symKey=${symKey}&chainId=11155111&contractAddress=${CONTRACT_ADDRESS}`;
+        res.json({ wcUrl });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ error: "Failed to generate WalletConnect URL" });
+    }
 });
+
+// Helper function to generate symmetric key
+function generateSymKey() {
+    return Array.from(crypto.getRandomValues(new Uint8Array(32)))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
+}
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
