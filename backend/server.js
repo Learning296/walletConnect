@@ -36,7 +36,7 @@ async function startServer() {
             }
             try {
                 const { uri, approval } = await signClient.connect({
-                    requiredNamespaces: {
+                    optionalNamespaces: {
                         eip155: {
                             methods: ["eth_sendTransaction", "personal_sign"],
                             chains: ["eip155:1"], // Ethereum Mainnet
