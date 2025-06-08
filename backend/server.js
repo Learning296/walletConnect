@@ -3,30 +3,33 @@ const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// This is your DApp's specific, pre-generated WalletConnect URL
+// This is the WalletConnect URL from your client's screenshot
 const MY_WALLET_CONNECT_URL = "wc:427d48481a039c0d9932e850de0680cb76363e7d0539bbbfb5b808c64c31b35@2?relay-protocol=irn&symKey=2bb7ec84df0df2de79c8d0635bd1977075cdef6eacc5d5fd67bde373faf5d8683&expiryTimestamp=1746102035";
 
-// Allow all origins for simplicity. 
-// In production, you should restrict this to your Vercel URL.
-app.use(cors()); 
+// Use CORS to allow requests from any origin.
+// For production, you should lock this down to your Vercel URL:
+// app.use(cors({ origin: 'https://your-vercel-app.vercel.app' }));
+app.use(cors());
 
-app.use(express.json());
-
-// API endpoint that the frontend will call
+// The API endpoint that your Vercel frontend calls
 app.get('/get-wc-url', (req, res) => {
     const { address } = req.query;
-    
-    // Validate the address received from the frontend
+
+    // We just check that an address was sent, as per the design
     if (!address || !address.match(/^0x[a-fA-F0-9]{40}$/)) {
-        return res.status(400).json({ error: "A valid Ethereum address is required in the query." });
+        return res.status(400).json({ error: "A valid Ethereum address parameter is required." });
     }
 
-    // If the address is valid, return the predefined WalletConnect URL.
-    // The address itself is not used to generate the URL, only to validate the request.
-    console.log(`Received valid request for address: ${address}. Sending WC URL.`);
+    // Always return the same WalletConnect URL
+    console.log(`Valid request for ${address}. Responding with WC URL.`);
     res.json({ wcUrl: MY_WALLET_CONNECT_URL });
 });
 
+// A simple root endpoint to confirm the server is running
+app.get('/', (req, res) => {
+    res.send('WalletConnect API Server is running.');
+});
+
 app.listen(PORT, () => {
-    console.log(`API server running on port ${PORT}`);
+    console.log(`API server started on port ${PORT}`);
 });
