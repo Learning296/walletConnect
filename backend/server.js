@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const crypto = require('crypto'); // Add Node.js crypto module
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -41,11 +42,9 @@ app.get('/get-wc', async (req, res) => {
     }
 });
 
-// Helper function to generate symmetric key
+// Helper function to generate symmetric key using Node.js crypto
 function generateSymKey() {
-    return Array.from(crypto.getRandomValues(new Uint8Array(32)))
-        .map(b => b.toString(16).padStart(2, '0'))
-        .join('');
+    return crypto.randomBytes(32).toString('hex');
 }
 
 app.listen(PORT, () => {
